@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0050A0">
+  <title>SmartLanche - Sistema Escolar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topo">
+    <div class="marca">
+      <span class="marca-nome">SmartLanche</span>
+    </div>
+    <nav id="nav" class="nav" role="tablist" aria-label="Módulos do sistema">
+      <button type="button" class="nav-btn ativo" data-view="aluno" role="tab" aria-selected="true">Aluno</button>
+      <button type="button" class="nav-btn" data-view="professor" role="tab" aria-selected="false">Professor</button>
+      <button type="button" class="nav-btn" data-view="cantina" role="tab" aria-selected="false">Cantina</button>
+      <button type="button" class="nav-btn" data-view="admin" role="tab" aria-selected="false">Coordenação</button>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+
+    <!-- ===================== MÓDULO DO ALUNO ===================== -->
+    <section id="view-aluno" class="view" aria-label="Módulo do aluno">
+
+      <div id="aluno-auth" class="cartao cartao-estreito">
+        <h1 class="titulo">Seu lanche, sem ficha</h1>
+        <p class="sub">Entre ou realize o seu cadastro com foto do rosto.</p>
+
+        <div class="abas" role="tablist">
+          <button type="button" class="aba ativo" data-aba="login" role="tab">Entrar</button>
+          <button type="button" class="aba" data-aba="cadastro" role="tab">Cadastrar</button>
+        </div>
+
+        <form id="form-login" novalidate>
+          <label for="login-matricula">Matrícula</label>
+          <input id="login-matricula" type="text" inputmode="numeric" autocomplete="off" maxlength="15" placeholder="Ex.: 20240123">
+          <p class="msg" id="msg-login" role="alert"></p>
+          <button type="submit" class="btn btn-azul btn-bloco">Entrar</button>
+        </form>
+
+        <form id="form-cadastro" novalidate hidden>
+          <label for="cad-nome">Nome completo</label>
+          <input id="cad-nome" type="text" autocomplete="off" maxlength="80" placeholder="Ex.: Maria da Silva">
+
+          <label for="cad-curso">Curso</label>
+          <input id="cad-curso" type="text" list="lista-cursos" autocomplete="off" maxlength="60" placeholder="Escolha ou digite o curso">
+          <datalist id="lista-cursos">
+            <option value="Técnico em Desenvolvimento de Sistemas"></option>
+            <option value="Técnico em Eletroeletrônica"></option>
+            <option value="Técnico em Construção Naval"></option>
+            <option value="Técnico em Internet das Coisas"></option>
+            <option value="Técnico em Automação Industrial"></option>
+          </datalist>
+
+          <label for="cad-turno">Turno de estudo</label>
+          <select id="cad-turno">
+            <option value="Manhã">Manhã</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noite">Noite</option>
+          </select>
+
+          <label for="cad-matricula">Matrícula (somente números)</label>
+          <input id="cad-matricula" type="text" inputmode="numeric" autocomplete="off" maxlength="15" placeholder="Ex.: 20240123">
+
+          <!-- Captura da Foto do Rosto -->
+          <label>Foto do rosto (Antifraude)</label>
+          <p class="ajuda-label">Tire uma foto clara do seu rosto para identificação visual na cantina.</p>
+          
+          <div class="box-foto-cad">
+            <div id="foto-preview-container" class="foto-preview-container" hidden>
+              <img id="img-foto-preview" src="" alt="Foto do aluno">
+              <button type="button" id="btn-remover-foto" class="btn btn-peq btn-contorno">Tirar outra foto</button>
+            </div>
+
+            <div id="foto-camera-container" class="foto-camera-container">
+              <video id="video-selfie" autoplay playsinline muted hidden></video>
+              <canvas id="canvas-selfie" hidden></canvas>
+              <div class="acoes-camera">
+                <button type="button" id="btn-abrir-camera" class="btn btn-contorno btn-bloco">📷 Abrir Câmera do Rosto</button>
+                <button type="button" id="btn-capturar-foto" class="btn btn-azul btn-bloco" hidden>📸 Tirar Foto Agora</button>
+              </div>
+              <div class="divisor-ou"><span>ou selecione do aparelho</span></div>
+              <input type="file" id="file-foto-aluno" accept="image/*" capture="user">
+            </div>
+          </div>
+
+          <p class="msg" id="msg-cadastro" role="alert"></p>
+          <button type="submit" class="btn btn-vermelho btn-bloco">Concluir cadastro e entrar</button>
+        </form>
+      </div>
+
+      <div id="aluno-painel" hidden>
+
+        <div id="aluno-ficha" class="ficha">
+          <div class="ficha-topo">
+            <span class="ficha-rotulo">Ficha digital de lanche</span>
+            <div class="ficha-perfil-linha">
+              <div class="ficha-avatar-wrap">
+                <img id="aluno-foto-ficha" class="ficha-avatar" src="" alt="Foto do aluno" hidden>
+                <div id="aluno-foto-placeholder" class="ficha-avatar-padrao">👤</div>
+              </div>
+              <div>
+                <strong id="aluno-nome" class="ficha-nome"></strong>
+                <span id="aluno-curso" class="ficha-curso"></span>
+                <span id="aluno-turno" class="ficha-turno-badge"></span>
+              </div>
+            </div>
+          </div>
+          <div class="ficha-corte" aria-hidden="true"></div>
+          <div class="ficha-corpo">
+            <div id="qrcode" class="qr" aria-label="QR Code do aluno"></div>
+            <div id="aluno-bloqueado" class="bloqueado" hidden role="img" aria-label="QR Code bloqueado">
+              <svg viewBox="0 0 52 52" aria-hidden="true">
+                <circle cx="26" cy="26" r="24"></circle>
+                <path d="M17 17l18 18M35 17L17 35"></path>
+              </svg>
+            </div>
+            <p id="aluno-codigo" class="ficha-codigo"></p>
+            <p id="aluno-aviso" class="aviso aviso-erro" hidden></p>
+            <p id="aluno-dica" class="ficha-dica">Mostre esta tela para a câmera da cantina. Sua foto será conferida no leitor.</p>
+          </div>
+        </div>
+
+        <div id="aluno-retirado" class="retirado" hidden role="status">
+          <svg class="retirado-icone" viewBox="0 0 52 52" aria-hidden="true">
+            <circle cx="26" cy="26" r="24"></circle>
+            <path d="M14 27l8 8 16-17"></path>
+          </svg>
+          <h2>Lanche Retirado</h2>
+          <p class="retirado-hora" id="retirado-hora">--:--:--</p>
+          <p class="retirado-data" id="retirado-data"></p>
+          <p class="retirado-nome" id="retirado-nome"></p>
+        </div>
+
+        <button type="button" id="btn-sair" class="btn btn-contorno btn-bloco">Sair da Conta</button>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO DO PROFESSOR ===================== -->
+    <section id="view-professor" class="view" hidden aria-label="Módulo do professor">
+      <!-- 1. Seleção de Curso -->
+      <div id="prof-selecao-curso" class="cartao cartao-estreito">
+        <h1 class="titulo">Área do Professor</h1>
+        <p class="sub">Selecione o seu curso para acessar a lista de chamada:</p>
+
+        <div class="grade-cursos-prof">
+          <button type="button" class="btn-curso-prof" data-curso="Técnico em Desenvolvimento de Sistemas">
+            <strong>Técnico em Desenvolvimento de Sistemas</strong>
+            <span>Acessar turma</span>
+          </button>
+          <button type="button" class="btn-curso-prof" data-curso="Técnico em Eletroeletrônica">
+            <strong>Técnico em Eletroeletrônica</strong>
+            <span>Acessar turma</span>
+          </button>
+          <button type="button" class="btn-curso-prof" data-curso="Técnico em Construção Naval">
+            <strong>Técnico em Construção Naval</strong>
+            <span>Acessar turma</span>
+          </button>
+          <button type="button" class="btn-curso-prof" data-curso="Técnico em Internet das Coisas">
+            <strong>Técnico em Internet das Coisas</strong>
+            <span>Acessar turma</span>
+          </button>
+          <button type="button" class="btn-curso-prof" data-curso="Técnico em Automação Industrial">
+            <strong>Técnico em Automação Industrial</strong>
+            <span>Acessar turma</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Painel da Turma Selecionada -->
+      <div id="prof-painel-chamada" class="cartao" hidden>
+        <div class="prof-topo-turma">
+          <div>
+            <h1 class="titulo">Chamada da Turma</h1>
+            <p class="sub" id="prof-curso-selecionado">Curso: --</p>
+            <p class="data-hoje" id="prof-data"></p>
+          </div>
+          <button type="button" id="btn-trocar-curso" class="btn btn-contorno btn-peq">Trocar de Curso</button>
+        </div>
+
+        <div class="prof-filtro-turno-wrap">
+          <label for="prof-filtro-turno">Filtrar Turno:</label>
+          <select id="prof-filtro-turno">
+            <option value="todos">Todos os turnos</option>
+            <option value="Manhã">Manhã</option>
+            <option value="Tarde">Tarde</option>
+            <option value="Noite">Noite</option>
+          </select>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span class="stat-num" id="prof-presentes">0</span><span class="stat-rot">Presentes</span></div>
+          <div class="stat"><span class="stat-num texto-vermelho" id="prof-faltas">0</span><span class="stat-rot">Faltas</span></div>
+          <div class="stat"><span class="stat-num texto-cinza" id="prof-pendentes">0</span><span class="stat-rot">Sem registro</span></div>
+        </div>
+
+        <p class="aviso aviso-info">Aluno marcado com falta fica impedido de retirar lanche. Toque no botão ativo para desfazer.</p>
+
+        <ul id="lista-professor" class="lista"></ul>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO DA CANTINA ===================== -->
+    <section id="view-cantina" class="view" hidden aria-label="Módulo da cantina">
+      
+      <!-- Cardápio e Estoque -->
+      <div class="cartao painel-cardapio-estoque">
+        <div class="topo-cardapio">
+          <div>
+            <h2 class="titulo-2">Cardápio & Controle de Estoque de Hoje</h2>
+            <p class="sub">Configure a merenda do dia e a quantidade preparada.</p>
+          </div>
+        </div>
+
+        <div class="grade-config-estoque">
+          <div>
+            <label for="cantina-cardapio-input">Cardápio de hoje:</label>
+            <input type="text" id="cantina-cardapio-input" placeholder="Ex.: Sanduíche natural + Suco de uva">
+          </div>
+          <div>
+            <label for="cantina-estoque-input">Lanches preparados (Estoque Total):</label>
+            <input type="number" id="cantina-estoque-input" min="0" placeholder="Ex.: 200">
+          </div>
+          <div>
+            <button type="button" id="btn-salvar-estoque" class="btn btn-azul btn-bloco">Salvar Cardápio & Estoque</button>
+          </div>
+        </div>
+
+        <div class="stats-estoque">
+          <div class="stat-est">
+            <span class="stat-est-rot">Cardápio Atual</span>
+            <strong id="cantina-disp-cardapio" class="stat-est-val-texto">Nenhum informado</strong>
+          </div>
+          <div class="stat-est">
+            <span class="stat-est-rot">Estoque Inicial</span>
+            <strong id="cantina-disp-total" class="stat-est-val">0</strong>
+          </div>
+          <div class="stat-est">
+            <span class="stat-est-rot">Lanches Entregues</span>
+            <strong id="cantina-disp-entregues" class="stat-est-val texto-verde">0</strong>
+          </div>
+          <div class="stat-est">
+            <span class="stat-est-rot">Restantes no Estoque</span>
+            <strong id="cantina-disp-restantes" class="stat-est-val texto-azul">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="grade-cantina">
+        <div class="cartao">
+          <h1 class="titulo">Leitor de QR Code</h1>
+          <div id="leitor" class="leitor"></div>
+          <p id="leitor-status" class="aviso aviso-info" role="status">Aguardando câmera...</p>
+          <button type="button" id="btn-camera" class="btn btn-contorno btn-bloco">Reiniciar câmera</button>
+        </div>
+
+        <div class="cartao">
+          <h2 class="titulo-2">Aprovação manual</h2>
+          <p class="sub">Busque por nome ou matrícula para conferir a foto e aprovar.</p>
+          <label for="busca" class="sr-only">Buscar aluno</label>
+          <input id="busca" type="search" autocomplete="off" placeholder="Nome ou matrícula">
+          <ul id="resultados" class="lista"></ul>
+        </div>
+
+        <div class="cartao">
+          <h2 class="titulo-2">Retiradas de hoje</h2>
+          <div class="stats">
+            <div class="stat"><span class="stat-num texto-verde" id="cant-retirados">0</span><span class="stat-rot">Retirados</span></div>
+            <div class="stat"><span class="stat-num texto-cinza" id="cant-restantes">0</span><span class="stat-rot">Faltam</span></div>
+            <div class="stat"><span class="stat-num texto-vermelho" id="cant-bloqueados">0</span><span class="stat-rot">Bloqueados</span></div>
+          </div>
+          <ul id="log-cantina" class="lista"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MÓDULO ADMIN (COORDENAÇÃO) ===================== -->
+    <section id="view-admin" class="view" hidden aria-label="Módulo da coordenação">
+
+      <!-- Painel de Infrações Reportadas pela Cantina -->
+      <div id="adm-box-infracoes" class="cartao painel-infracoes">
+        <div class="topo-infracao">
+          <h2 class="titulo-2 texto-vermelho">🚨 Painel de Infrações e Tentativas de Fraude</h2>
+          <span class="badge-alerta" id="adm-qtd-infracoes">0 alerta(s)</span>
+        </div>
+        <p class="sub">Tentativas de uso de QR Code de outro aluno detectadas na cantina pela foto do rosto.</p>
+        <ul id="lista-infracoes" class="lista"></ul>
+      </div>
+
+      <div class="cartao espaco-topo">
+        <h1 class="titulo">Coordenação</h1>
+        <p class="sub" id="adm-data"></p>
+
+        <div class="stats stats-4">
+          <div class="stat"><span class="stat-num" id="adm-alunos">0</span><span class="stat-rot">Cadastrados</span></div>
+          <div class="stat"><span class="stat-num texto-verde" id="adm-retirados">0</span><span class="stat-rot">Comeram</span></div>
+          <div class="stat"><span class="stat-num texto-cinza" id="adm-pendentes">0</span><span class="stat-rot">Ainda não comeram</span></div>
+          <div class="stat"><span class="stat-num texto-vermelho" id="adm-faltas">0</span><span class="stat-rot">Faltas</span></div>
+        </div>
+
+        <h2 class="titulo-2">Acompanhamento e Histórico</h2>
+
+        <div class="adm-filtros-grade">
+          <div>
+            <label for="adm-data-filtro">Consultar dia / histórico</label>
+            <input id="adm-data-filtro" type="date">
+            <div class="adm-atalhos-datas" id="adm-atalhos">
+              <button type="button" class="btn-chip" id="btn-filtro-hoje">Hoje</button>
+              <button type="button" class="btn-chip" id="btn-filtro-ontem">Ontem</button>
+              <button type="button" class="btn-chip" id="btn-filtro-7dias">Semana passada (-7 dias)</button>
+            </div>
+          </div>
+          <div>
+            <label for="adm-filtro">Filtrar por situação</label>
+            <select id="adm-filtro">
+              <option value="todos">Todos os alunos</option>
+              <option value="comeram">Quem já comeu</option>
+              <option value="pendentes">Quem ainda não comeu</option>
+              <option value="faltas">Alunos com falta</option>
+            </select>
+          </div>
+          <div>
+            <label for="adm-filtro-turno">Filtrar por turno</label>
+            <select id="adm-filtro-turno">
+              <option value="todos">Todos os turnos</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Tarde">Tarde</option>
+              <option value="Noite">Noite</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="adm-aviso-historico" class="aviso-historico" hidden>
+          <span id="adm-aviso-texto"></span>
+          <button type="button" id="btn-voltar-hoje" class="btn btn-contorno btn-peq">Voltar para Hoje</button>
+        </div>
+
+        <div class="tabela-wrap">
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Aluno</th>
+                <th>Matrícula</th>
+                <th>Curso</th>
+                <th>Turno</th>
+                <th>Chamada</th>
+                <th>Lanche</th>
+                <th>Horário</th>
+                <th>Como</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="adm-tabela"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="cartao cartao-estreito espaco-topo">
+        <h2 class="titulo-2">Novo dia</h2>
+        <button type="button" id="btn-zerar" class="btn btn-vermelho btn-bloco">Zerar Sistema para o Dia Seguinte</button>
+        <p class="ajuda">Arquiva o dia atual no histórico para consulta futura e reinicia a lista diária. Os alunos cadastrados permanecem salvos.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== MODAL DE CONFERÊNCIA FACIAL (CANTINA) ===================== -->
+  <div id="modal-conferencia" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="conf-titulo">
+    <div class="modal-card">
+      <div class="modal-topo">
+        <h2 id="conf-titulo" class="titulo-2">Verificação Facial do Aluno</h2>
+        <span class="sub-modal">Confira se o rosto da pessoa na fila corresponde à foto oficial:</span>
+      </div>
+
+      <div class="conf-corpo">
+        <div class="conf-foto-box">
+          <img id="conf-foto" src="" alt="Foto oficial do aluno" class="conf-foto-img" hidden>
+          <div id="conf-foto-padrao" class="conf-foto-padrao">Sem Foto</div>
+        </div>
+
+        <div class="conf-dados">
+          <strong id="conf-nome" class="conf-nome">--</strong>
+          <p id="conf-matricula" class="conf-info">Matrícula: --</p>
+          <p id="conf-curso" class="conf-info">Curso: --</p>
+          <p id="conf-turno" class="conf-turno-badge">Turno: --</p>
+          <p id="conf-status-lanche" class="aviso aviso-info conf-aviso"></p>
+        </div>
+      </div>
+
+      <div class="conf-acoes">
+        <button type="button" id="btn-conf-aprovar" class="btn btn-verde btn-bloco">
+          ✅ Entregar Lanche (Foto Confere)
+        </button>
+        <button type="button" id="btn-conf-fraude" class="btn btn-vermelho btn-bloco">
+          🚨 Reportar Fraude à Coordenação (Pessoa Diferente)
+        </button>
+        <button type="button" id="btn-conf-cancelar" class="btn btn-contorno btn-bloco">
+          Voltar / Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== EFEITO PIX RÁPIDO ===================== -->
+  <div id="pix" class="pix-overlay" hidden role="alert" aria-live="assertive">
+    <div class="pix-conteudo">
+      <svg class="pix-check" viewBox="0 0 52 52" aria-hidden="true">
+        <circle class="pix-circulo" cx="26" cy="26" r="24"></circle>
+        <path class="pix-marca" d="M14 27l8 8 16-17"></path>
+        <path class="pix-x" d="M17 17l18 18M35 17L17 35"></path>
+      </svg>
+      <h2 id="pix-titulo">LANCHE AUTORIZADO</h2>
+      <p id="pix-nome" class="pix-nome"></p>
+      <p id="pix-detalhe" class="pix-detalhe"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Bibliotecas externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
